@@ -3,7 +3,7 @@ from math import floor
 import random
 from tkinter import *
 from tkinter import BooleanVar
-
+from PIL import Image, ImageTk
 
 import ttkbootstrap as tb
 
@@ -28,14 +28,34 @@ i=5
 while(i<=20):
     options.append(i)
     i+=1
+copy_img = Image.open('copy.png')
+copy_img = copy_img.resize((30,30))
+copy_img_resized = ImageTk.PhotoImage(copy_img)
+copy_flag=0
+
+def copy_clipboard():
+    global btn_copy
+    global copy_flag
+    btn_copy = tb.Button(root, image=copy_img_resized, bootstyle='link')
+    btn_copy.grid(row=6, column=1, sticky='w', padx=20)
+    copy_flag=1
+    root.clipboard_clear()
+    root.clipboard_append(result_joined)
 
 def generate():
+    global copy_flag
     #Error Handling
     if not(len_var.get().isdigit()) or (int(len_var.get()) < 5) or (int(len_var.get())>20):
         label_result.config(text='Error : Invalid Lenght of Password', bootstyle='danger')
+        if copy_flag==1:
+            btn_copy.destroy()
+            copy_flag=0
         return
     elif(number_tog.get() == False and char_tog.get() == False and sp_char_tog.get() == False):
         label_result.config(text='Error : Select atlest 1 of 3 options', bootstyle='danger')
+        if copy_flag==1:
+            btn_copy.destroy()
+            copy_flag=0
         return
     else:
         label_result.config(text='')
@@ -66,13 +86,15 @@ def generate():
     while(j<len_var_value):
         result.append(random.choice(all_char))
         j+=1
+    global result_joined
     result_joined = "".join(str(item) for item in result)
     label_result.config(text="")
     label_result.config(text=result_joined, bootstyle='primary')
+    copy_clipboard()
 
 #Heading
 heading = tb.Label(root, text="Simple Password Generator", font=("Helvetica", 17, "bold"), foreground="navy")
-heading.grid(row=0, column=0, pady=70)
+heading.grid(row=0, column=0, pady=70, columnspan=2)
 
 #Lenght of Password
 entry_len = tb.Combobox(values=options, textvariable=len_var)
@@ -94,10 +116,10 @@ btn_sp_char.grid(row=4, column=0, padx=20, pady=10, sticky='w')
 
 #Submit
 btn_sub=tb.Button(root, text='Enter', command=generate)
-btn_sub.grid(row=5, column=0,ipadx=10,ipady=5, padx=100, pady=20)
+btn_sub.grid(row=5, column=0,ipadx=10,ipady=5, padx=100, pady=20, sticky='nesw', columnspan=2)
 
 #Result/Error Messeage Box
-label_result = tb.Label(root, text='', font=("Helvetica", 10, "bold"))
+label_result = tb.Label(root, text='', font=("Helvetica", 15, "bold"), anchor="e")
 label_result.grid(row=6, column=0, pady=10)
 
 root.mainloop()
