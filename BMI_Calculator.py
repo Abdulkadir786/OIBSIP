@@ -14,10 +14,13 @@ root.maxsize(height=500, width=400)
 root.title('BMI Calculator')
 
 #initialization
-var_weight=IntVar(root, "")
-var_age=IntVar(root, "")
-var_height=IntVar(root, "")
-var_gender=IntVar(root, 0)
+try:
+    var_weight=IntVar(root, "")
+    var_age=IntVar(root, "")
+    var_height=IntVar(root, "")
+    var_gender=IntVar(root, 0)
+except (ValueError, TypeError):
+    label_result.config(text='Please enter Valid data', foreground='red')
 
 #Functions
 def get_motivation(category):
@@ -38,12 +41,12 @@ def get_motivation(category):
             "Progress, not perfection.",
             "You've got this!"
         ],
-        "Obese": [
+        "Obese (Class I)": [
             "Small changes matter.",
             "One day at a time.",
             "Your journey starts today."
         ],
-        "Severely Obese": [
+        "Obese (Class II)": [
             "Health comes first.",
             "Take charge of your health.",
             "Begin with belief."
@@ -76,23 +79,38 @@ def category_classification(bmi):
         label_result_category.config(foreground='dark red')
         get_motivation(category)
     else:
-        category = "Obese (Class III)"
+        category = "Obese (Class II)"
         label_result_category.config(foreground='dark red')
         get_motivation(category)
     label_result_category.config(text=category)
 
 def BMI_cal():
     #initialization
-    age=var_age.get()
-    height=var_height.get()/100
-    weight=var_weight.get()
-    gender= var_gender.get()
-    print(age, height, weight, gender)
+    try:
+        age=int(var_age.get())
+        height=float(var_height.get())/100
+        weight=int(var_weight.get())
+        gender= var_gender.get()
+        print(age, height, weight, gender)
+    except (ValueError, TypeError, TclError):
+        label_result.config(text='Please enter Valid data', foreground='red')
+
+    #User Input Validation Check
+    if age<18 or age>65:
+        label_result.config(text='Sorry, this service is for users aged\n between 18 to 65.', foreground='red')
+        return
+    if not (20 <= weight <= 300):
+        label_result.config(text="Enter a valid weight (20–300 kg).", fg="red")
+        return
+    if not(50 < height*100 < 250):
+        label_result.config(text="Enter a valid height (50–250 cm).", fg="red")
+        return
+
     #logic
     global var_result
     var_result = floor(weight / (height * height))
     #printing result
-    label_result.config(text='BMI : '+str(var_result))
+    label_result.config(text='BMI : '+str(var_result), foreground='black')
     category_classification(var_result)
 
 #Heading
@@ -124,7 +142,7 @@ label_result_category = Label(root, text='', font=('calibre', 15, 'normal'))
 label_motivation=Label(root, text='', font=('calibre', 15, 'normal'))
 
 #Grid
-label_heading.grid(row=0, column=0, pady=15, columnspan=3)
+label_heading.grid(row=0, column=0, pady=45, columnspan=3)
 
 label_age.grid(row=1, column=0, pady=3, sticky="w", padx=10)
 entry_age.grid(row=1, column=1, pady=3, padx=5)
